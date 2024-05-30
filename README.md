@@ -1,12 +1,14 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/ActurialCapital/autotuner">
-    <img src="docs/static/logo.png" alt="Logo">
-  </a>
-</div>
+```
+   _____          __       ___________                         
+  /  _  \  __ ___/  |_  ___\__    ___/_ __  ____   ___________ 
+ /  /_\  \|  |  \   __\/  _ \|    | |  |  \/    \_/ __ \_  __ \
+/    |    \  |  /|  | (  <_> )    | |  |  /   |  \  ___/|  | \/
+\____|__  /____/ |__|  \____/|____| |____/|___|  /\___  >__|   
+        \/                                     \/     \/
+```
 
 <!-- TABLE OF CONTENTS -->
 <details>
