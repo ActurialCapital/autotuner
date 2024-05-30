@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from autotuner import TuneEstimator
+from autotuner import TuneEstimator, TuneConfig
 
 
 if __name__ == "__main__":
@@ -25,12 +25,12 @@ if __name__ == "__main__":
     
     estimator = RandomForestRegressor()
     
-    tune = TuneEstimator(estimator)
+    model = TuneEstimator(estimator, TuneConfig(verbose=True))
     
     estimator.fit(X_train, y_train).predict(y_test)
     # ...
     
-    tune.fit(X_train, y_train).predict(y_test)
+    model.fit(X_train, y_train).predict(y_test)
     # ...
     
   
