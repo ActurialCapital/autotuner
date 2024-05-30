@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/ActurialCapital/autotuner">
-    <img src="docs/static/logo.png" alt="Logo" width="30%" height="30%">
+    <img src="docs/static/logo.png" alt="Logo" width="50%" height="50%">
   </a>
 </div>
 
