@@ -1,27 +1,24 @@
 import pytest
-from optuna.pruners import ( 
-    SuccessiveHalvingPruner, 
-    HyperbandPruner, 
-    MedianPruner, 
+from itertools import product
+import numpy as np
+
+from optuna.pruners import (
+    SuccessiveHalvingPruner,
+    HyperbandPruner,
+    MedianPruner,
     NopPruner
 )
-from optuna.samplers import TPESampler, RandomSampler
-from optuna.distributions import ( 
-    FloatDistribution, 
-    IntDistribution, 
+from optuna.samplers import (
+    TPESampler,
+    RandomSampler
+)
+from optuna.distributions import (
+    FloatDistribution,
+    IntDistribution,
     CategoricalDistribution
 )
 from sklearn.utils import all_estimators
-from itertools import product
-
-from opendesk.utils.synthetic import GeometricBrownianMotion
-from opendesk.blocks.tuners import ( 
-    WrapSpace, 
-    WrapPrune, 
-    WrapSearch, 
-    TuneConfig,
-    TuneEstimator
-)
+from autotuner import WrapSpace, WrapPrune, WrapSearch, TuneConfig, TuneEstimator
 
 
 # Getting all regressor estimators from sklearn
@@ -62,33 +59,28 @@ optuna_samplers = [
 
 
 @pytest.fixture
-def data1():
-    """Fixture to provide synthetic data with length 5000 and 20 paths."""
-    return GeometricBrownianMotion(length=50, num_paths=20).transform()
+def sample_data_1() -> np.ndarray:
+    """Fixture to provide synthetic data with length 50 and 20 paths."""
+    length, paths = 50, 20
+    return np.random.normal(size=(length, paths))
 
 
 @pytest.fixture
-def data2():
-    """Fixture to provide synthetic data with length 5000 and 10 paths."""
-    return GeometricBrownianMotion(length=50, num_paths=10).transform()
+def sample_data_2() -> np.ndarray:
+    """Fixture to provide synthetic data with length 50 and 10 paths."""
+    length, paths = 50, 20
+    return np.random.normal(size=(length, paths))
 
 
 @pytest.mark.parametrize("name, estimator", all_estimators('regressor'))
-def test_wrap_search_space(data1, name, estimator,):
-    """
-    Test the WrapSearchSpace functionality.
-
-    Parameters
-    ----------
-    data1 : DataFrame
-        The synthetic data to be used for testing.
-    """
+def test_wrap_search_space(sample_data_1, name, estimator):
+    """Test the WrapSearchSpace functionality."""
     # Test when implemented (valid)
     if name in search_space.get_models():
         params = (
             search_space.sample(name)
             if name not in black_list
-            else search_space.sample(name, n_samples=len(data1.columns))
+            else search_space.sample(name, n_samples=len(sample_data_1.columns))
         )
         assert isinstance(params, dict), \
             f"WrapSearchSpace {name} does not return a dict."
@@ -141,7 +133,7 @@ def test_search_algorithm(algorithm, sampler_class):
         WrapSearch("invalid_algorithm", seed=0).create_sampler()
 
 
-def tune_model(data1, data2, estimator, pruner, search_algorithm, seed):
+def tune_model(sample_data_1, sample_data_2, estimator, pruner, search_algorithm, seed):
     # Update config
     config = TuneConfig()
     config.parameter_space = WrapSearch().sample(estimator.__name__, 'optuna')
@@ -149,32 +141,39 @@ def tune_model(data1, data2, estimator, pruner, search_algorithm, seed):
     config.search_algorithm = search_algorithm
     # Tune model
     tuner = TuneEstimator(estimator(), config)
-    best_params = tuner.optimize(data1, data2)
+    best_params = tuner.optimize(sample_data_1, sample_data_2)
     return best_params
 
 
 @pytest.mark.parametrize("name, estimator", all_estimators('regressor'))
 @pytest.mark.parametrize("pruner, search_algorithm", list(product(pruner_options, search_alg_options)))
-def test_tune_model(data1, data2, name, estimator, pruner, search_algorithm):
+def test_tune_model(
+    sample_data_1, 
+    sample_data_2,
+    name, 
+    estimator, 
+    pruner,
+    search_algorithm
+):
     """
     Test the TuneModel functionality with different estimators.
 
     Parameters
     ----------
-    data1 : DataFrame
+    sample_data_1 : np.ndarray
         The synthetic data to be used for training.
-    data2 : DataFrame
+    sample_data_2 : np.ndarray
         The synthetic data to be used for testing.
     name : str
         The name of the estimator.
     estimator : class
         The estimator class.
     """
-    
+
     if name in search_space.all_valid_spaces.keys() and name not in black_list:
         best_params = tune_model(
-            data1,
-            data2,
+            sample_data_1,
+            sample_data_2,
             estimator,
             pruner,
             search_algorithm,

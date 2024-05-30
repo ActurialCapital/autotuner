@@ -1,5 +1,5 @@
 # Ignore specific folders
-examples/example_pipeline.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, Any
 import random
-import optuna
+from optuna.samplers import BaseSampler
 
 from autotuner import WrapSpace, WrapSearch, WrapPrune
 
@@ -42,10 +42,10 @@ class TuneConfig:
         seed between 150 and 9000 is chosen.
 
     """
-    study_name: str = "opendesk"
+    study_name: str = "autotuner"
     param_space: WrapSpace | Dict[str, Any] = None
     pruner: WrapPrune = None
-    search_algorithm: WrapSearch | optuna.samplers.BaseSampler = None
+    search_algorithm: WrapSearch | BaseSampler = None
     scoring: str = "neg_mean_squared_error"
     direction: str = "maximize"
     fold: int = 10
