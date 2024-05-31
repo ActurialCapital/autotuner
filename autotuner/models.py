@@ -1,7 +1,6 @@
 from optuna import create_study as create_optuna_study
 from optuna.integration import OptunaSearchCV
 
-from sklearn.model_selection import TimeSeriesSplit
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator
 
@@ -41,6 +40,7 @@ class TuneEstimator(BaseTuner, OptunaSearchCV):
             search_algorithm=None,
             scoring='neg_mean_squared_error',
             direction='maximize',
+            cv=None,
             fold=10,
             n_trials=10,
             early_stopping_max_iters=10,
@@ -85,7 +85,7 @@ class TuneEstimator(BaseTuner, OptunaSearchCV):
             self,
             estimator=self.base_estimator,
             param_distributions=self.get_param_distributions(),
-            cv=TimeSeriesSplit(n_splits=self.config.fold),
+            cv=self.splitter,
             enable_pruning=self.config.pruner is not None and can_early_stop(
                 self.base_estimator, True, False, False, self.parameter_space
             ),

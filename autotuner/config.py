@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, Any
 import random
+from sklearn.model_selection import BaseCrossValidator
 from optuna.samplers import BaseSampler
 
 from autotuner import WrapSpace, WrapSearch, WrapPrune
@@ -25,6 +26,8 @@ class TuneConfig:
         The sampler used for Optuna's study.
     scoring : str, default "neg_mean_squared_error"
         The scoring metric used for optimization.
+    cv : BaseCrossValidator, default to None
+        Cross-validator. if None, model uses `TimeSeriesSplit` with fold.
     fold : int, default 10
         The number of folds for cross-validation.
     n_trials : int, default 10
@@ -48,6 +51,7 @@ class TuneConfig:
     search_algorithm: WrapSearch | BaseSampler = None
     scoring: str = "neg_mean_squared_error"
     direction: str = "maximize"
+    cv: BaseCrossValidator = None
     fold: int = 10
     n_trials: int = 10
     early_stopping_max_iters: int = 10

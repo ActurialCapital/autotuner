@@ -6,6 +6,7 @@ from optuna import logging as optuna_logger
 
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator
+from sklearn.model_selection import TimeSeriesSplit
 
 from autotuner import TuneConfig, WrapSpace, WrapPrune, WrapSearch
 
@@ -56,7 +57,7 @@ class BaseTuner(ABC):
 
     @property
     def base_estimator(self):
-        """Sklearn compatible estimator."""
+        """Compatible sklearn estimator."""
         # Check if estimator adheres to scikit-learn conventions.
         if not isinstance(self._base_estimator, (BaseEstimator, Pipeline)):
             raise ValueError(
@@ -93,6 +94,16 @@ class BaseTuner(ABC):
             WrapSearch("tpe", seed=self.config.random_state)
         )
 
+    @property
+    def splitter(self):
+        """Cross-validation strategy."""
+        return ( 
+            TimeSeriesSplit(n_splits=self.config.fold) 
+            if self.config.cv is None
+            else self.config.cv
+        )
+
+        
     def get_param_distributions(self) -> Dict[str, Any] | WrapSpace:
         """
         Set the model parameter space distribution from an estimator or 

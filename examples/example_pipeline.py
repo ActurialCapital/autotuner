@@ -1,10 +1,12 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
+
 import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
 
 from autotuner import TuneEstimator
 

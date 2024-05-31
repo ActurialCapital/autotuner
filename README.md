@@ -77,10 +77,11 @@ More information could be found in the [Official Documentation](https://optuna.r
 
 ### Built With
 
-* `python = "^3.11"`
 * `optuna = "^3.6.1"`
-* `scikit-learn = "^1.5.0"`
+* `optuna-integration = "^3.6.0"`
 * `numpy = "^1.26.4"`
+* `scikit-learn = "^1.5.0"`
+* `pandas = "^2.2.2"`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
