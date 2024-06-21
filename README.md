@@ -1,7 +1,8 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-# AutoTuner
+<p align="center"><img src="docs/logo.png" alt="logo" width="90%" height="90%"></p>
+
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -28,14 +29,12 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
 ### Introduction
 
-`Autotuner` is an automated hyper-parameter tuning for `scikit-learn` estimators using `optuna`:
+`autotuner` is an automated hyper-parameter tuning for `scikit-learn` estimators using `optuna`:
 
 > `optuna` is an automatic hyperparameter optimization software framework, particularly designed for machine learning. It features an imperative, define-by-run style user API. Thanks to our define-by-run API, the code written with Optuna enjoys high modularity, and the user of Optuna can dynamically construct the search spaces for the hyperparameters.
 
@@ -88,7 +87,7 @@ More information could be found in the [Official Documentation](https://optuna.r
 <!-- GETTING STARTED -->
 ## Installation
 
-To get started with `Autotuner`, you can clone the repository to your local machine. Ensure you have Git installed, then run the following command:
+To get started with `autotuner`, you can clone the repository to your local machine. Ensure you have Git installed, then run the following command:
 
 ```sh
 $ git clone https://github.com/ActurialCapital/autotuner.git
@@ -99,12 +98,11 @@ $ git clone https://github.com/ActurialCapital/autotuner.git
 <!-- USAGE EXAMPLES -->
 ## Getting Started
 
-Once you have cloned the repository, you can start using `Autotuner` to optimize `scikit-learn` hyperparameters.
+Once you have cloned the repository, you can start using `autotuner` to optimize `scikit-learn` hyperparameters.
 
 ```python
 >>> from sklearn.ensemble import RandomForestRegressor
 >>> from autotuner import TuneEstimator
-
 >>> model = TuneEstimator(RandomForestRegressor())
 ```
 
@@ -173,12 +171,3 @@ Distributed under the BSD-3 License. See `LICENSE.txt` for more information.
 
 * Takuya Akiba, Shotaro Sano, Toshihiko Yanase, Takeru Ohta, and Masanori Koyama. 2019.
 * Optuna: A Next-generation Hyperparameter Optimization Framework. In KDD.
-
-```bibtex
-@inproceedings{optuna_2019,
-    title={Optuna: A Next-generation Hyperparameter Optimization Framework},
-    author={Akiba, Takuya and Sano, Shotaro and Yanase, Toshihiko and Ohta, Takeru and Koyama, Masanori},
-    booktitle={Proceedings of the 25th {ACM} {SIGKDD} International Conference on Knowledge Discovery and Data Mining},
-    year={2019}
-}
-```
