@@ -96,6 +96,154 @@ class BaseSpace(ABC):
         }
 
 
+class WrapSpace:
+    """
+    A class responsible for sampling hyperparameters for a given estimator 
+    using predefined hyperparameter spaces.
+
+    It uses the estimator name to find and instantiate the appropriate 
+    hyperparameter space and samples parameters. Therefore, both estimator and 
+    estimator space classes should have the same name.
+
+    Attributes
+    ----------
+    get_available_models : List[str]
+        Lists all available estimators.
+
+    Methods
+    -------
+    sample(estimator_name, search_library)
+        Samples parameters for the specified estimator.
+
+    """
+
+    @classmethod
+    def get_models(cls) -> List[str]:
+        """ 
+        Lists all available estimators.
+
+        Returns
+        -------
+        List[str]
+            List of available estimators.
+
+        Examples
+        --------
+        ```pycon
+        >>> WrapSpace.get_models()
+        ['BaggingRegressor',
+         'DecisionTreeRegressor',
+         'ElasticNet',
+         'ExtraTreeRegressor',
+         'ExtraTreesRegressor',
+         'GaussianProcessRegressor',
+         'KNeighborsRegressor',
+         'KernelRidge',
+         'Lars',
+         'Lasso',
+         'LassoLars',
+         'LinearRegression',
+         'MLPRegressor',
+         'OrthogonalMatchingPursuit',
+         'RandomForestRegressor',
+         'Ridge',
+         'RidgeCV',
+         'XGBRegressor']
+        ```
+
+        """
+        module = inspect.getmodule(cls)
+        exclude = ['WrapSpace', 'BaseSpace', 'self']
+        return [
+            name for name, obj in inspect.getmembers(module, inspect.isclass)
+            if obj.__module__ == module.__name__ and name not in exclude
+        ]
+
+    @classmethod
+    def sample(
+        cls,
+        estimator_name: str,
+        search_library: str = 'optuna',
+        **search_space_kwargs
+    ) -> Dict[str, SearchParams | OptunaDistributions]:
+        """
+        Samples parameters for a given estimator based on the predefined 
+        hyperparameter space.
+
+        Parameters
+        ----------
+        estimator_name : str
+            The name of the estimator for which to sample parameters.
+        search_library : str
+            The library to use for search optimisation.
+        search_space_kwargs : Any
+            Key word extra arguments in search space. For example, 
+            `OrthogonalMatchingPursuit` requires `n_samples`.
+
+        Returns
+        -------
+        Dict[str, List[Any] | distributions]
+            A dictionary of sampled parameters for the given estimator.
+
+        Raises
+        ------
+        ValueError
+            If the estimator name is not integrated.
+
+        ValueError
+            if search library is not supported.
+
+        Examples
+        --------
+        Using Scikit-Learn `LinearRegression`
+        ```pycon
+        >>> from sklearn.linear_model import LinearRegression
+        >>> WrapSpace.sample('LinearRegression')
+        {'fit_intercept': CategoricalDistribution(choices=(True, False))}
+        ```
+
+        Using Scikit-Learn `RandomForestRegressor`
+        ```pycon
+        >>> from sklearn.ensemble import RandomForestRegressor
+        >>> WrapSpace.sample('RandomForestRegressor')
+        {'n_estimators': IntDistribution(high=300, log=False, low=10, step=1),
+         'max_depth': IntDistribution(high=11, log=False, low=1, step=1),
+         'min_impurity_decrease': FloatDistribution(high=0.5, log=True, low=1e-09, step=None),
+         'max_features': FloatDistribution(high=1.0, log=False, low=0.4, step=None),
+         'min_samples_split': IntDistribution(high=10, log=False, low=2, step=1),
+         'min_samples_leaf': IntDistribution(high=6, log=False, low=2, step=1),
+         'bootstrap': CategoricalDistribution(choices=(True, False)),
+         'criterion': CategoricalDistribution(choices=('squared_error', 'absolute_error'))}
+        ```  
+
+        Using Scikit-Learn `MLPRegressor`
+        ```pycon
+        >>> from sklearn.neural_network import MLPRegressor
+        >>> WrapSpace.sample('MLPRegressor')
+        {'alpha': FloatDistribution(high=0.9999999999, log=True, low=1e-10, step=None),
+         'hidden_layer_sizes': IntDistribution(high=200, log=False, low=10, step=1),
+         'learning_rate': CategoricalDistribution(choices=('constant', 'invscaling', 'adaptive')),
+         'activation': CategoricalDistribution(choices=('tanh', 'identity', 'logistic', 'relu')),
+         'solver': CategoricalDistribution(choices=('lbfgs', 'sgd', 'adam')),
+         'batch_size': CategoricalDistribution(choices=('auto', 32, 64, 128))}
+        ```
+
+        """
+        try:
+            module = inspect.getmodule(cls)
+            space_class = getattr(module, estimator_name)
+        except:
+            raise ValueError(f"Estimator {estimator_name} is not integrated.")
+
+        # Grid search/random are WIP
+        if search_library not in ['optuna']:
+            raise ValueError(
+                f"Search library {search_library} is not supported."
+            )
+
+        return space_class(**search_space_kwargs).get_params()[search_library]
+
+
 class LinearRegression(BaseSpace):
     """
     Linear Regression Hyperparameter Search Space.
@@ -579,10 +727,10 @@ class KNeighborsRegressor(BaseSpace):
         id = "knn"
         tune_grid = {}
         tune_optuna = {}
-        tune_grid["n_neighbors"] = range(1, 51)
+        tune_grid["n_neighbors"] = range(1, 10)
         tune_grid["weights"] = ["uniform", "distance"]
         tune_grid["metric"] = ["minkowski", "euclidean", "manhattan"]
-        tune_optuna["n_neighbors"] = IntDistribution(1, 51)
+        tune_optuna["n_neighbors"] = IntDistribution(1, 10)
         extract_categorical_from_grid(tune_grid, tune_optuna)
         BaseSpace.__init__(
             self,
@@ -1126,151 +1274,3 @@ class BaggingRegressor(BaseSpace):
             tune_grid=tune_grid,
             tune_optuna=tune_optuna,
         )
-
-
-class WrapSpace:
-    """
-    A class responsible for sampling hyperparameters for a given estimator 
-    using predefined hyperparameter spaces.
-
-    It uses the estimator name to find and instantiate the appropriate 
-    hyperparameter space and samples parameters. Therefore, both estimator and 
-    estimator space classes should have the same name.
-
-    Attributes
-    ----------
-    get_available_models : List[str]
-        Lists all available estimators.
-
-    Methods
-    -------
-    sample(estimator_name, search_library)
-        Samples parameters for the specified estimator.
-
-    """
-
-    @classmethod
-    def get_models(cls) -> List[str]:
-        """ 
-        Lists all available estimators.
-
-        Returns
-        -------
-        List[str]
-            List of available estimators.
-
-        Examples
-        --------
-        ```pycon
-        >>> WrapSpace.get_models()
-        ['BaggingRegressor',
-         'DecisionTreeRegressor',
-         'ElasticNet',
-         'ExtraTreeRegressor',
-         'ExtraTreesRegressor',
-         'GaussianProcessRegressor',
-         'KNeighborsRegressor',
-         'KernelRidge',
-         'Lars',
-         'Lasso',
-         'LassoLars',
-         'LinearRegression',
-         'MLPRegressor',
-         'OrthogonalMatchingPursuit',
-         'RandomForestRegressor',
-         'Ridge',
-         'RidgeCV',
-         'XGBRegressor']
-        ```
-
-        """
-        module = inspect.getmodule(cls)
-        exclude = ['WrapSpace', 'self']
-        return [
-            name for name, obj in inspect.getmembers(module, inspect.isclass)
-            if obj.__module__ == module.__name__ and name not in exclude
-        ]
-
-    @classmethod
-    def sample(
-        cls,
-        estimator_name: str,
-        search_library: str = 'optuna',
-        **search_space_kwargs
-    ) -> Dict[str, SearchParams | OptunaDistributions]:
-        """
-        Samples parameters for a given estimator based on the predefined 
-        hyperparameter space.
-
-        Parameters
-        ----------
-        estimator_name : str
-            The name of the estimator for which to sample parameters.
-        search_library : str
-            The library to use for search optimisation.
-        search_space_kwargs : Any
-            Key word extra arguments in search space. For example, 
-            `OrthogonalMatchingPursuit` requires `n_samples`.
-
-        Returns
-        -------
-        Dict[str, List[Any] | distributions]
-            A dictionary of sampled parameters for the given estimator.
-
-        Raises
-        ------
-        ValueError
-            If the estimator name is not integrated.
-
-        ValueError
-            if search library is not supported.
-
-        Examples
-        --------
-        Using Scikit-Learn `LinearRegression`
-        ```pycon
-        >>> from sklearn.linear_model import LinearRegression
-        >>> WrapSpace.sample('LinearRegression')
-        {'fit_intercept': CategoricalDistribution(choices=(True, False))}
-        ```
-
-        Using Scikit-Learn `RandomForestRegressor`
-        ```pycon
-        >>> from sklearn.ensemble import RandomForestRegressor
-        >>> WrapSpace.sample('RandomForestRegressor')
-        {'n_estimators': IntDistribution(high=300, log=False, low=10, step=1),
-         'max_depth': IntDistribution(high=11, log=False, low=1, step=1),
-         'min_impurity_decrease': FloatDistribution(high=0.5, log=True, low=1e-09, step=None),
-         'max_features': FloatDistribution(high=1.0, log=False, low=0.4, step=None),
-         'min_samples_split': IntDistribution(high=10, log=False, low=2, step=1),
-         'min_samples_leaf': IntDistribution(high=6, log=False, low=2, step=1),
-         'bootstrap': CategoricalDistribution(choices=(True, False)),
-         'criterion': CategoricalDistribution(choices=('squared_error', 'absolute_error'))}
-        ```  
-
-        Using Scikit-Learn `MLPRegressor`
-        ```pycon
-        >>> from sklearn.neural_network import MLPRegressor
-        >>> WrapSpace.sample('MLPRegressor')
-        {'alpha': FloatDistribution(high=0.9999999999, log=True, low=1e-10, step=None),
-         'hidden_layer_sizes': IntDistribution(high=200, log=False, low=10, step=1),
-         'learning_rate': CategoricalDistribution(choices=('constant', 'invscaling', 'adaptive')),
-         'activation': CategoricalDistribution(choices=('tanh', 'identity', 'logistic', 'relu')),
-         'solver': CategoricalDistribution(choices=('lbfgs', 'sgd', 'adam')),
-         'batch_size': CategoricalDistribution(choices=('auto', 32, 64, 128))}
-        ```
-
-        """
-        try:
-            module = inspect.getmodule(cls)
-            space_class = getattr(module, estimator_name)
-        except:
-            raise ValueError(f"Estimator {estimator_name} is not integrated.")
-        
-        # Grid search/random are WIP
-        if search_library not in ['optuna']:
-            raise ValueError(
-                f"Search library {search_library} is not supported."
-            )
-            
-        return space_class(**search_space_kwargs).get_params()[search_library]

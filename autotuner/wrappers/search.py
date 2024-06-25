@@ -1,5 +1,7 @@
 from optuna import samplers
 
+SearchAlgo = str | samplers.BaseSampler
+
 
 class WrapSearch:
     """
@@ -13,9 +15,9 @@ class WrapSearch:
 
     Parameters
     ----------
-    search_algorithm : str
-        The name of the search algorithm to use for the sampler. User can
-        also pass the optuna sampler directly.
+    search_algorithm : SearchAlgo
+        The name or the class of the search algorithm to use for the sampler.
+        User can also pass the optuna sampler directly.
     seed : int, optional
         Seed for random number generator. Defaults to None.
 
@@ -31,8 +33,8 @@ class WrapSearch:
 
     def __init__(
         self,
-        search_algorithm: str | samplers.BaseSampler, 
-        seed: int = None
+        search_algorithm: SearchAlgo,
+        seed: int = None,
     ):
         self.search_algorithm = search_algorithm
         self.seed = seed
@@ -78,7 +80,7 @@ class WrapSearch:
         >>> search.create_sampler()
         <optuna.samplers._tpe.sampler.TPESampler at 0x138d08150>
         ```
-        
+
         ```pycon
         >>> search = WrapSearch("random")
         >>> search.create_sampler()
@@ -96,12 +98,14 @@ class WrapSearch:
                 constant_liar=True
             ),
             "random": samplers.RandomSampler(seed=self.seed),
+            None: None,
+            False: None
         }
 
         if self.search_algorithm not in repository:
             raise ValueError(
                 f"'{self.search_algorithm}' is not a valid search algorithm. "
-                f"Available algorithms are {list(samplers.keys())}."
+                f"Available algorithms are {list(repository.keys())}."
             )
 
         return repository[self.search_algorithm]

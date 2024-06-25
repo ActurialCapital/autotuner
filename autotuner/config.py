@@ -17,7 +17,7 @@ class TuneConfig:
 
     Attributes
     ----------
-    param_space : WrapSearchSpace | dict, optional
+    param_space : WrapSearchSpace | str | dict, optional
         The hyperparameter space to search. Can be a custom search space
         or a dictionary of parameter distributions.
     pruner : WrapPrune, optional
@@ -46,7 +46,7 @@ class TuneConfig:
 
     """
     study_name: str = "autotuner"
-    param_space: WrapSpace | Dict[str, Any] = None
+    param_space: WrapSpace | str | Dict[str, Any] = 'auto'
     pruner: WrapPrune = None
     search_algorithm: WrapSearch | BaseSampler = None
     scoring: str = "neg_mean_squared_error"

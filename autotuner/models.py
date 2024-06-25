@@ -87,7 +87,7 @@ class TuneEstimator(BaseTuner, OptunaSearchCV):
             param_distributions=self.get_param_distributions(),
             cv=self.splitter,
             enable_pruning=self.config.pruner is not None and can_early_stop(
-                self.base_estimator, True, False, False, self.parameter_space
+                self.base_estimator, True, False, False, self.config.param_space
             ),
             n_trials=self.config.n_trials,
             scoring=self.config.scoring,

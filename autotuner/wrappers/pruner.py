@@ -61,7 +61,6 @@ class WrapPrune:
         Using optuna pruner
 
         !!! note
-
             Passing an optuna sampler in this context is just for 
             proof-of-concept.
 

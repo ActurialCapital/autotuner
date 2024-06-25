@@ -21,6 +21,8 @@ class BaseTuner(ABC):
 
     Attributes
     ----------
+    base_estimator: BaseEstimator | Pipeline
+        Scikit-Learn Estimator.
     config : TuneConfig
         Configuration object containing settings for the tuner.
     enable_pruning : bool
@@ -30,11 +32,11 @@ class BaseTuner(ABC):
         enabled.
     search_algorithm : WrapSearch
         The search algorithm for exploring the parameter space.
-    parameter_space : dict or type
-        The parameter space for the tuner to explore.
 
     Parameters
     ----------
+    estimator: BaseEstimator | Pipeline
+        Scikit-Learn Estimator.
     config : TuneConfig
         The configuration object for the tuner.
 
@@ -50,7 +52,7 @@ class BaseTuner(ABC):
     def __init__(self, estimator: BaseEstimator | Pipeline, config: TuneConfig):
         self._base_estimator = estimator
         self._config = config
-        
+
         if not self.config.verbose:
             optuna_logger.set_verbosity(optuna_logger.WARNING)
             warnings.filterwarnings('ignore')
@@ -89,21 +91,17 @@ class BaseTuner(ABC):
         """Search algorithm
 
         More information could be found in autotuner.wrappers.search.py."""
-        return (
-            self.config.search_algorithm or
-            WrapSearch("tpe", seed=self.config.random_state)
-        )
+        return self.config.search_algorithm or WrapSearch("tpe", seed=self.config.random_state)
 
     @property
     def splitter(self):
         """Cross-validation strategy."""
-        return ( 
-            TimeSeriesSplit(n_splits=self.config.fold) 
+        return (
+            TimeSeriesSplit(n_splits=self.config.fold)
             if self.config.cv is None
             else self.config.cv
         )
 
-        
     def get_param_distributions(self) -> Dict[str, Any] | WrapSpace:
         """
         Set the model parameter space distribution from an estimator or 
@@ -127,33 +125,31 @@ class BaseTuner(ABC):
         if isinstance(self.config.param_space, dict):
             return self.config.param_space
 
-        
         model = (
-            self.base_estimator.steps[-1][1] # last step
+            self.base_estimator.steps[-1][1]  # last step in pipeline
             if isinstance(self.base_estimator, Pipeline)
             else self.base_estimator
         )
         model_name = model.__class__.__name__
 
-        if self.config.param_space is None or self.config.param_space == 'auto':
+        if self.config.param_space in [None, 'auto']:
             space = WrapSpace.sample(model_name, self.config.search_library)
-        
+
         elif isinstance(self.config.param_space, type):
             space = self.config.param_space.sample(model_name, self.config.search_library)
-        
+
         else:
             raise ValueError("Invalid type for `param_space`.")
-            
-        # Handle pipeline 
+
+        # Handle pipeline
         if isinstance(self.base_estimator, Pipeline):
             for name, step in self.base_estimator.named_steps.items():
                 if step == model:
                     prefix = name
-            
+
             space = {f'{prefix}__{key}': value for key, value in space.items()}
-        
+
         return space
-            
 
     @abstractmethod
     def _run_search(self):
