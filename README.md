@@ -1,7 +1,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT LOGO -->
-<p align="center"><img src="docs/logo.png" alt="logo" width="90%" height="90%"></p>
+<p align="center"><img src="https://github.com/ActurialCapital/autotuner/blob/238a2f1eeba3d70b4b8ee53b96e3eedbbda2702a/docs/logo.png" alt="logo" width="90%" height="90%"></p>
 
 | Overview | |
 |---|---|
