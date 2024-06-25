@@ -20,7 +20,13 @@ sk_estimators = all_estimators(type_filter='regressor')
 black_list = [
     # OrthogonalMatchingPursuit need to know n_samples to cast
     # n_nonzero_coefs parameter within the space
-    'OrthogonalMatchingPursuit'
+    'OrthogonalMatchingPursuit',
+    # Time consuming - tested independently
+    'ExtraTreesRegressor',
+    'Lars',
+    'LassoLars',
+    'MLPRegressor',
+    'RandomForestRegressor'
 ]
 
 # Search space
@@ -80,16 +86,20 @@ def test_tune_model(
         The name of the estimator.
     estimator : class
         The estimator class.
-    """             
-    if name in search_space.get_models() and name not in black_list:
-        best_params = get_best_params(
-            X_train,
-            y_train,
-            estimator,
-            pruner,
-            search_algorithm,
-            seed=seed
-        )
-        assert isinstance(best_params, dict), \
-            f"Output with {pruner}, {search_algorithm} is not a dict"
-        assert len(best_params) > 0, "Output `best_params_` is empty"
+    """
+    for name, estimator in sk_estimators:
+        for pruner, search_algorithm in list(product(pruner_options, search_alg_options)):
+                        
+            if name in search_space.get_models() and name not in black_list:
+                best_params = get_best_params(
+                    X_train,
+                    y_train,
+                    estimator,
+                    pruner,
+                    search_algorithm,
+                    seed=seed
+                )
+                print(name, best_params)
+                assert isinstance(best_params, dict), \
+                    f"Output with {pruner}, {search_algorithm} is not a dict"
+                assert len(best_params) > 0, "Output `best_params_` is empty"

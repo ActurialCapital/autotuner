@@ -9,7 +9,7 @@
 | **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/ActurialCapital/autotuner/wheels.yml?logo=github)](https://github.com/ActurialCapital/autotuner/actions/workflows/wheels.yml) [![!codecov](https://img.shields.io/codecov/c/github/ActurialCapital/autotuner?label=codecov&logo=codecov)](https://codecov.io/gh/ActurialCapital/autotuner) |
 | **Code** |  [![!pypi](https://img.shields.io/pypi/v/autotuner?color=orange)](https://pypi.org/project/autotuner/) [![!python-versions](https://img.shields.io/pypi/pyversions/autotuner)](https://www.python.org/) |
 | **Downloads** | ![PyPI - Downloads](https://img.shields.io/pypi/dw/autotuner) ![PyPI - Downloads](https://img.shields.io/pypi/dm/autotuner) [![Downloads](https://static.pepy.tech/personalized-badge/autotuner?period=total&units=international_system&left_color=grey&right_color=blue&left_text=cumulative%20(pypi))](https://pepy.tech/project/autotuner) |
-| **Citation** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12514531.svg)](https://doi.org/10.5281/zenodo.12514531) |
+| **Citation** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12529711.svg)](https://doi.org/10.5281/zenodo.12529711) |
 
 
 <!-- TABLE OF CONTENTS -->

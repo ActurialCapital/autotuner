@@ -513,7 +513,9 @@ class Lars(BaseSpace):
         }
         tune_optuna = {
             "eps": FloatDistribution(
-                0.00001, 0.1),
+                0.00001, 
+                0.1
+            ),
         }
         extract_categorical_from_grid(tune_grid, tune_optuna)
         BaseSpace.__init__(
