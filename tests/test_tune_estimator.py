@@ -86,20 +86,17 @@ def test_tune_model(
         The name of the estimator.
     estimator : class
         The estimator class.
-    """
-    for name, estimator in sk_estimators:
-        for pruner, search_algorithm in list(product(pruner_options, search_alg_options)):
-                        
-            if name in search_space.get_models() and name not in black_list:
-                best_params = get_best_params(
-                    X_train,
-                    y_train,
-                    estimator,
-                    pruner,
-                    search_algorithm,
-                    seed=seed
-                )
-                print(name, best_params)
-                assert isinstance(best_params, dict), \
-                    f"Output with {pruner}, {search_algorithm} is not a dict"
-                assert len(best_params) > 0, "Output `best_params_` is empty"
+    """      
+    if name in search_space.get_models() and name not in black_list:
+        best_params = get_best_params(
+            X_train,
+            y_train,
+            estimator,
+            pruner,
+            search_algorithm,
+            seed=seed
+        )
+        print(name, best_params)
+        assert isinstance(best_params, dict), \
+            f"Output with {pruner}, {search_algorithm} is not a dict"
+        assert len(best_params) > 0, "Output `best_params_` is empty"
